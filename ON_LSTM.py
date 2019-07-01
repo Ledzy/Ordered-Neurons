@@ -79,7 +79,7 @@ class ONLSTMCell(nn.Module):
         if transformed_input is None:
             transformed_input = self.ih(input)
 
-        gates = transformed_input + self.hh(hx)
+        gates = transformed_input + self.hh(hx) #why not using two seperate NN?
         cingate, cforgetgate = gates[:, :self.n_chunk*2].chunk(2, 1)
         outgate, cell, ingate, forgetgate = gates[:,self.n_chunk*2:].view(-1, self.n_chunk*4, self.chunk_size).chunk(4,1)
 
@@ -165,7 +165,7 @@ class ONLSTMStack(nn.Module):
             dist_cforget, dist_cin = zip(*dist)
             dist_layer_cforget = torch.stack(dist_cforget)
             dist_layer_cin = torch.stack(dist_cin)
-            raw_outputs.append(prev_layer)
+            raw_outputs.append(prev_layer) #outputs before dropout
             if l < len(self.cells) - 1:
                 prev_layer = self.lockdrop(prev_layer, self.dropout)
             outputs.append(prev_layer)
@@ -179,6 +179,8 @@ class ONLSTMStack(nn.Module):
 if __name__ == "__main__":
     x = torch.Tensor(10, 10, 10)
     x.data.normal_()
-    lstm = ONLSTMStack([10, 10, 10], chunk_size=10)
+    lstm = ONLSTMStack([10, 10, 20], chunk_size=10)
     print(lstm(x, lstm.init_hidden(10))[1])
+    # lstm_cell = ONLSTMCell(10,10,10)
+    # print(lstm_cell(x, lstm_cell.init_hidden(10))[0])
 

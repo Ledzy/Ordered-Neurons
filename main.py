@@ -5,11 +5,12 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.optim.lr_scheduler as lr_scheduler
+import sys
 
 import data
 import model
 
-from utils import batchify, get_batch, repackage_hidden
+from utils import batchify, get_batch, repackage_hidden, record
 
 parser = argparse.ArgumentParser(description='PyTorch PennTreeBank RNN/LSTM Language Model')
 parser.add_argument('--data', type=str, default='data/penn/',
@@ -185,8 +186,9 @@ def evaluate(data_source, batch_size=10):
         hidden = repackage_hidden(hidden)
     return total_loss.item() / len(data_source)
 
-
+texts_outputs = [] #the text and relative outputs of ON-LSTM
 def train():
+    global texts_outputs
     # Turn on training mode which enables dropout.
     if args.model == 'QRNN': model.reset()
     total_loss = 0
@@ -204,14 +206,18 @@ def train():
         lr2 = optimizer.param_groups[0]['lr']
         optimizer.param_groups[0]['lr'] = lr2 * seq_len / args.bptt
         model.train()
-        data, targets = get_batch(train_data, i, args, seq_len=seq_len)
+        data, targets = get_batch(train_data, i, args, seq_len=seq_len) #data:[68,80] targets:[5440]
+        data_text = [corpus.dictionary.idx2word[i] for i in data[:,0]]
 
         # Starting each batch, we detach the hidden state from how it was previously produced.
         # If we didn't, the model would try backpropagating all the way to start of the dataset.
         hidden = repackage_hidden(hidden)
         optimizer.zero_grad()
 
-        output, hidden, rnn_hs, dropped_rnn_hs = model(data, hidden, return_h=True)
+        output, hidden, rnn_hs, dropped_rnn_hs = model(data, hidden, return_h=True) #output: [5440,400]
+        texts_outputs.append((data_text,output[:68]))
+        if len(texts_outputs) % 100 == 0:
+            record(texts_outputs)
         # output, hidden = model(data, hidden, return_h=False)
         raw_loss = criterion(model.decoder.weight, model.decoder.bias, output, targets)
 

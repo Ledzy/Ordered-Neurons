@@ -78,3 +78,8 @@ class RNNModel(nn.Module):
 
     def init_hidden(self, bsz):
         return self.rnn.init_hidden(bsz)
+
+if __name__ == "__main__":
+    model = RNNModel("LSTM",ntoken=1000,ninp=32,nhid=64,chunk_size=4,nlayers=3)
+    # print(model)
+    model.reset()

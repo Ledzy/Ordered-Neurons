@@ -1,4 +1,6 @@
 import torch
+import numpy as np
+import sys
 
 
 def repackage_hidden(h):
@@ -108,3 +110,16 @@ def evalb(pred_tree_list, targ_tree_list):
           ', Evalb F1:', evalb_fscore)
 
     return evalb_fscore
+
+def record(texts_outputs):
+    """ record the text and its relative output of ON-LSTM"""
+    texts = list(zip(*texts_outputs))[0]
+    outputs = list(zip(*texts_outputs))[1]
+
+    outputs = torch.stack(outputs).detach().cpu().numpy()
+    texts = [" ".join(txt)+"\n" for txt in texts]
+
+    np.save("./texts_outputs/outputs.npy",outputs)
+    with open("./texts_outputs/texts.txt", "w") as f:
+        f.writelines(texts)
+        f.flush()
