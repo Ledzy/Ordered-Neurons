@@ -83,8 +83,8 @@ class ONLSTMCell(nn.Module):
         cingate, cforgetgate = gates[:, :self.n_chunk*2].chunk(2, 1)
         outgate, cell, ingate, forgetgate = gates[:,self.n_chunk*2:].view(-1, self.n_chunk*4, self.chunk_size).chunk(4,1)
 
-        distance_cforget = cingate.argmax(dim=-1)
-        distance_cin = cforgetgate.argmax(dim=-1)
+        distance_cforget = torch.floor(cingate.mean(axis=-1) * self.n_chunk)
+        distance_cin = torch.floor(cforgetgate.mean(axis=-1) * self.n_chunk)
 
         cingate = 1. - cumsoftmax(cingate)
         cforgetgate = cumsoftmax(cforgetgate)
