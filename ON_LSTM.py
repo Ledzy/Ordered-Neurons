@@ -88,8 +88,6 @@ class ONLSTMCell(nn.Module):
 
         # distance_cforget = 1. - cforgetgate.sum(dim=-1) / self.n_chunk
         # distance_cin = cingate.sum(dim=-1) / self.n_chunk
-        distance_cforget = cforgetgate.argmax(dim=-1) / self.n_chunk
-        distance_cin = cingate.argmax(dim=-1) / self.n_chunk
 
         cingate = cingate[:, :, None]
         cforgetgate = cforgetgate[:, :, None]
@@ -108,7 +106,7 @@ class ONLSTMCell(nn.Module):
 
         # hy = outgate * F.tanh(self.c_norm(cy))
         hy = outgate * F.tanh(cy)
-        return hy.view(-1, self.hidden_size), cy, (distance_cforget, distance_cin)
+        return hy.view(-1, self.hidden_size), cy, (cforgetgate, cingate)
 
     def init_hidden(self, bsz):
         weight = next(self.parameters()).data
@@ -181,8 +179,8 @@ class ONLSTMStack(nn.Module):
 if __name__ == "__main__":
     x = torch.Tensor(10, 10, 10)
     x.data.normal_()
-    lstm = ONLSTMStack([10, 10, 20], chunk_size=10)
-    print(lstm(x, lstm.init_hidden(10))[1])
+    lstm = ONLSTMStack([10, 10, 20], chunk_size=5)
+    lstm(x, lstm.init_hidden(10))
     # lstm_cell = ONLSTMCell(10,10,10)
     # print(lstm_cell(x, lstm_cell.init_hidden(10))[0])
 
