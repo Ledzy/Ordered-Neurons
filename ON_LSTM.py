@@ -106,7 +106,7 @@ class ONLSTMCell(nn.Module):
 
         # hy = outgate * F.tanh(self.c_norm(cy))
         hy = outgate * F.tanh(cy)
-        return hy.view(-1, self.hidden_size), cy, (cforgetgate, cingate)
+        return hy.view(-1, self.hidden_size), cy, (cforgetgate.argmax(dim=-1), cingate.argmax(dim=-1))
 
     def init_hidden(self, bsz):
         weight = next(self.parameters()).data
