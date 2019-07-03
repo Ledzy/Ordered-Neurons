@@ -4,6 +4,7 @@ import argparse
 import hashlib
 import os
 import numpy as np
+import data
 from data import Corpus
 from torch.optim import SGD, Adam
 from splitcross import SplitCrossEntropyLoss
