@@ -54,10 +54,10 @@ hidden = repackage_hidden(hidden)
 bptt = args.bptt if np.random.random() < 0.95 else args.bptt / 2.
 # Prevent excessively small or negative sequence lengths
 seq_len = max(5, int(np.random.normal(bptt, 5)))
-data, targets = get_batch(train_data, 10, args, seq_len=seq_len)
+data, targets = get_batch(train_data, 0, args, seq_len=seq_len)
 output, hidden, distances = model(data, hidden, return_d=True)
 
-texts = [idx2text(idx) for idx in data[:,]]
+texts = [idx2text(idx) for idx in data.t()]
 np.save("output.npy",output.cpu().data.numpy())
 # np.save("distances.npy",distances.cpu().data.numpy())
 torch.save(distances,"distances.pt")
