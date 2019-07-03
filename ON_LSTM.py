@@ -89,6 +89,9 @@ class ONLSTMCell(nn.Module):
         # distance_cforget = 1. - cforgetgate.sum(dim=-1) / self.n_chunk
         # distance_cin = cingate.sum(dim=-1) / self.n_chunk
 
+        distance_cforget = cingate.argmax(dim=-1)
+        distance_cin = cforgetgate.argmax(dim=-1)
+
         cingate = cingate[:, :, None]
         cforgetgate = cforgetgate[:, :, None]
 
@@ -106,7 +109,7 @@ class ONLSTMCell(nn.Module):
 
         # hy = outgate * F.tanh(self.c_norm(cy))
         hy = outgate * F.tanh(cy)
-        return hy.view(-1, self.hidden_size), cy, (cforgetgate.argmax(dim=-1), cingate.argmax(dim=-1))
+        return hy.view(-1, self.hidden_size), cy, (distance_cforget, distance_cin)
 
     def init_hidden(self, bsz):
         weight = next(self.parameters()).data
