@@ -73,6 +73,8 @@ class RNNModel(nn.Module):
         result = output.view(output.size(0)*output.size(1), output.size(2))
         if return_h:
             return result, hidden, raw_outputs, outputs
+        elif return_d:
+            return result, hidden, distances
         else:
             return result, hidden
 
@@ -81,5 +83,5 @@ class RNNModel(nn.Module):
 
 if __name__ == "__main__":
     model = RNNModel("LSTM",ntoken=1000,ninp=32,nhid=64,chunk_size=4,nlayers=3)
-    # print(model)
+    print(model)
     model.reset()
