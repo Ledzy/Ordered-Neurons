@@ -59,5 +59,6 @@ output, hidden, distances = model(data, hidden, return_d=True)
 
 texts = [idx2text(idx) for idx in data[:,]]
 np.save("output.npy",output.cpu().data.numpy())
-np.save("distances.npy",distances.cpu().data.numpy())
+# np.save("distances.npy",distances.cpu().data.numpy())
+torch.save(distances,"distances.pt")
 torch.save(texts,"texts.pt")
