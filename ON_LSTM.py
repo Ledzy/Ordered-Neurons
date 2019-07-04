@@ -83,8 +83,8 @@ class ONLSTMCell(nn.Module):
         cingate, cforgetgate = gates[:, :self.n_chunk*2].chunk(2, 1)
         outgate, cell, ingate, forgetgate = gates[:,self.n_chunk*2:].view(-1, self.n_chunk*4, self.chunk_size).chunk(4,1)
 
-        distance_cforget = torch.floor(cingate.mean(axis=-1) * self.n_chunk)
-        distance_cin = torch.floor(cforgetgate.mean(axis=-1) * self.n_chunk)
+        distance_cforget = torch.sum(torch.arange(cforgetgate.size(-1),dtype=torch.float) * F.softmax(cforgetgate,dim=-1))
+        distance_cin = torch.sum(torch.arange(cingate.size(-1),dtype=torch.float) * F.softmax(cingate,dim=-1))
 
         cingate = 1. - cumsoftmax(cingate)
         cforgetgate = cumsoftmax(cforgetgate)
@@ -182,7 +182,7 @@ class ONLSTMStack(nn.Module):
 if __name__ == "__main__":
     x = torch.Tensor(10, 10, 10)
     x.data.normal_()
-    lstm = ONLSTMStack([10, 10, 20], chunk_size=5)
+    lstm = ONLSTMStack([10, 10, 10], chunk_size=5)
     lstm(x, lstm.init_hidden(10))
     # lstm_cell = ONLSTMCell(10,10,10)
     # print(lstm_cell(x, lstm_cell.init_hidden(10))[0])
