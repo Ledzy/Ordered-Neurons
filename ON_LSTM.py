@@ -87,7 +87,7 @@ class ONLSTMCell(nn.Module):
         distance_cin = (torch.arange(cingate.cpu().size(-1),dtype=torch.float) * F.softmax(cingate.cpu(),dim=-1)).sum(dim=-1)
 
 
-        print(cumsoftmax(cingate))
+        print(F.softmax(cingate))
         cingate = 1. - cumsoftmax(cingate)
         cforgetgate = cumsoftmax(cforgetgate)
 
